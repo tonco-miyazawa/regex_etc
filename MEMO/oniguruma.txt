@@ -92,6 +92,35 @@ each_match_callback:
 
 
 
+======================================================
+[ /s /m オプション ]
+
+perl と oniguruma の /s /m オプションの仕様がかなり違う。
+
+## perl5
+https://perldoc.jp/docs/perl/5.34.0/perlreref.pod#OPERATORS
+＞ m  複数行モード - ^ と $ が内部的な行にマッチします
+＞ s  単行としてマッチ - . が \n にマッチします
+
+
+## oniguruma
+https://github.com/kkos/oniguruma/blob/master/doc/API.ja
+79, 80 行目
+
+＞ ONIG_OPTION_SINGLELINE         '^' -> '\A', '$' -> '\Z'
+＞ ONIG_OPTION_MULTILINE          '.'が改行にマッチする
+
+＞ 補記 1. 文法依存オプション
+＞ 
+＞    + ONIG_SYNTAX_ONIGURUMA
+＞      (?m): 終止符記号(.)は改行と照合成功
+＞ 
+＞    + ONIG_SYNTAX_PERL と ONIG_SYNTAX_JAVA
+＞      (?s): 終止符記号(.)は改行と照合成功
+＞      (?m): ^ は改行の直後に照合する、$ は改行の直前に照合する
+
+======================================================
+
 
 
 ======================================================
