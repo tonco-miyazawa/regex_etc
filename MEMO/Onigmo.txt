@@ -1,1 +1,70 @@
+============================================
+  Onigmo の私的メモ         2022/01 - 2022/02
+============================================
+
+[ \K のバグ /issues/152 ]
+
+Use of \K when the string to match after \K can be empty #152 
+https://github.com/k-takata/Onigmo/issues/152
+
+
+ < Onigmo に \K が追加された commit >
+
+support for \K ("keep" pattern) 
+https://github.com/k-takata/Onigmo/commit/0c572db34f2d2c424995603c0fcdeec27813654e
+[更新日: 10 Jun 2011]
+
+
+
+ < Onigmo の \K に関連する定数 >
+
+ONIG_SYN_OP2_ESC_CAPITAL_K_KEEP
+https://github.com/k-takata/Onigmo/search?q=ONIG_SYN_OP2_ESC_CAPITAL_K_KEEP
+
+ANCHOR_KEEP
+https://github.com/k-takata/Onigmo/search?q=ANCHOR_KEEP
+
+TK_KEEP
+https://github.com/k-takata/Onigmo/search?q=TK_KEEP
+
+OP_KEEP
+https://github.com/k-takata/Onigmo/search?q=OP_KEEP
+
+
+
+
+ <  oniguruma の commit 履歴 >
+
+oniguruma の \K にはバグが無いのでソースを比較すれば問題点が分かるかも？
+しかし構造的に別物になっている可能性も。
+
+
+oniguruma に \K が commit された頃の commit 履歴
+https://github.com/kkos/oniguruma/commits/master?before=eaf351cf2907903255eb1648895eb9110f5dd62a+2520&branch=master
+[更新日: Jul 7, 2017 - Jul 12, 2017]
+
+
+oniguruma では ver 6.5.0 で \K がサポートされた。
+https://github.com/kkos/oniguruma/releases/tag/v6.5.0
+[更新日: 03 Aug 2017]
+
+1つ前の ver 6.4.0 は [更新日: 30 Jun 2017]
+
+
+
+ver 6.5.0 の後にも \K に関連する変更が行われている
+
+remove GIMMICK_KEEP from GimmickType 
+https://github.com/kkos/oniguruma/commit/0935ae782e7a5c3ce405a7f2874baffdeb2667bb
+[更新日: 28 Feb 2019]
+
+など。
+
+============================================
+
+
+おわり
+
+
+
 
