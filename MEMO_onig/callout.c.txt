@@ -1,1 +1,45 @@
+<<  callout.c の結果  >>
 
+## line: 235
+test(enc, mp, "a+(?{foo bar baz...}X)$", "aaab");
+
+この１行による出力が以下のもの
+
+
+CONTENTS PROGRESS: contents: "foo bar baz...", start: "aaab", current: "b"
+user_data: something data
+stack: used_num: 3, used_bytes: 96
+CONTENTS RETRACTION: contents: "foo bar baz...", start: "aaab", current: "b"
+user_data: something data
+stack: used_num: 3, used_bytes: 96
+CONTENTS PROGRESS: contents: "foo bar baz...", start: "aaab", current: "ab"
+user_data: something data
+stack: used_num: 2, used_bytes: 64
+CONTENTS RETRACTION: contents: "foo bar baz...", start: "aaab", current: "ab"
+user_data: something data
+stack: used_num: 2, used_bytes: 64
+CONTENTS PROGRESS: contents: "foo bar baz...", start: "aaab", current: "aab"
+user_data: something data
+stack: used_num: 1, used_bytes: 32
+CONTENTS RETRACTION: contents: "foo bar baz...", start: "aaab", current: "aab"
+user_data: something data
+stack: used_num: 1, used_bytes: 32
+CONTENTS PROGRESS: contents: "foo bar baz...", start: "aab", current: "b"
+user_data: something data
+stack: used_num: 2, used_bytes: 64
+CONTENTS RETRACTION: contents: "foo bar baz...", start: "aab", current: "b"
+user_data: something data
+stack: used_num: 2, used_bytes: 64
+CONTENTS PROGRESS: contents: "foo bar baz...", start: "aab", current: "ab"
+user_data: something data
+stack: used_num: 1, used_bytes: 32
+CONTENTS RETRACTION: contents: "foo bar baz...", start: "aab", current: "ab"
+user_data: something data
+stack: used_num: 1, used_bytes: 32
+CONTENTS PROGRESS: contents: "foo bar baz...", start: "ab", current: "b"
+user_data: something data
+stack: used_num: 1, used_bytes: 32
+CONTENTS RETRACTION: contents: "foo bar baz...", start: "ab", current: "b"
+user_data: something data
+stack: used_num: 1, used_bytes: 32
+search fail
