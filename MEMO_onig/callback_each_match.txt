@@ -1,0 +1,49 @@
+======================================================
+     デフォルトの callback_each_match.c の実行結果
+======================================================
+
+<search>
+each_match_callback:
+  match at:  4 - 9: 0x1234
+  region[0]: 8 - 9
+each_match_callback:
+  match at:  5 - 8: 0x1234
+  region[0]: 5 - 8
+each_match_callback:
+  match at:  5 - 7: 0x1234
+  region[0]: 5 - 7
+each_match_callback:
+  match at:  5 - 6: 0x1234
+  region[0]: 5 - 6
+each_match_callback:
+  match at:  6 - 8: 0x1234
+  region[0]: 6 - 8
+each_match_callback:
+  match at:  6 - 7: 0x1234
+  region[0]: 6 - 7
+each_match_callback:
+  match at:  7 - 8: 0x1234
+  region[0]: 7 - 8
+
+<search with FIND_LONGEST>
+each_match_callback:
+  match at:  4 - 9: 0x1234
+  region[0]: 8 - 9
+
+r: 4
+<match>
+each_match_callback:
+  match at:  5 - 8: 0x1234
+  region[0]: 5 - 8
+each_match_callback:
+  match at:  5 - 7: 0x1234
+  region[0]: 5 - 7
+each_match_callback:
+  match at:  5 - 6: 0x1234
+  region[0]: 5 - 6
+
+======================================================
+
+おわり
+
+
