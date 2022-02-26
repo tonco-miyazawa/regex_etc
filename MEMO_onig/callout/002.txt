@@ -31,6 +31,23 @@ match at 2
   /doc/RE.ja  の "<呼び出し>" を参照
   https://github.com/kkos/oniguruma/blob/master/doc/RE.ja#L335
 
+  contents: の中身は "{" から始まってはいけない
+  (?{{{}}  として実行したら以下のエラーが出た
+
+  COMPILE ERROR: -227: invalid callout pattern
+
+
+  contents: の中身を "}" で終わらせても同じエラーが出た
+  (?{{}}}   => エラー
+  (?{{a}}}  => エラー
+  (?{{}a}}  => 正常動作
+
+  contents を閉じる "}" の数以上の "}" の連続はエラーになるが
+  "{" の連続は contents の先頭以外なら許される
+  
+  (?{a}}}}}}b}  => エラー
+  (?{a{{{{{{b}  => 正常動作
+
 
   \\ はC言語の "" の中に \ を書くためのエスケープ
 
