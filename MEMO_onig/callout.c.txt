@@ -1,4 +1,4 @@
-<<  callout.c の結果  >>
+<<  callout.c の結果と考察  >>
 
 ## line: 235
 test(enc, mp, "a+(?{foo bar baz...}X)$", "aaab");
@@ -43,3 +43,67 @@ CONTENTS RETRACTION: contents: "foo bar baz...", start: "ab", current: "b"
 user_data: something data
 stack: used_num: 1, used_bytes: 32
 search fail
+
+
+-----------------------------------------------------
+  以下、現時点での解釈 (間違ってる可能性あり)  2022/02/26
+-----------------------------------------------------
+
+
+[CONTENTS]
+ PROGRESS:   (訳)出来るだけ前進しました
+ RETRACTION: (訳)これから引き返します
+
+
+
+[ contents: "foo bar baz..." ]
+ 正規表現 (?{ abc }) のリテラル文字列 "abc"
+ 正規表現の中からコードに渡せる文字列型の引数
+ この abc は正規表現としてマッチングに使用される文字列ではない
+ ただの文字列なので (*foo) のように関数が呼び出されることもない
+
+
+
+[ user_data: something data ]
+ user_data は構造体 OnigMatchParam のメンバー。
+ OnigMatchParam は引数としてコールバック関数に渡される。
+ "something data" は user_data に入れられていた任意の文字列(のポインタ)。
+
+
+
+[ stack: used_num: 3, used_bytes: 96 ]
+ used_num: その時点で使っているスタックの数
+ used_bytes: スタックの数 x 32 = スタックのメモリ消費量
+
+  enc = ONIG_ENCODING_UTF-8; を
+  enc = ONIG_ENCODING_ASCII; に書き換えても２つの数字は変わらず。
+  1byte文字かマルチバイト文字かには左右されないようだ。
+
+  /a+/ が "aaa" にマッチするとスタックの数は 3 になる。
+  これは "aaa" が3文字だからではなく、3回繰り返すから。
+  /(?:aa)+/ を "aaaa" にマッチさせればスタックの数は 2 になる
+
+  /(a)+/ としてキャプチャを有効にするとスタックの数が激増する
+  場合がある。
+  
+  例、
+  test(enc, mp, "(a)+b(?{foo bar baz...}X)$", "aaab");
+  => stack: used_num: 9, used_bytes: 288
+
+  これが何故 9 になるのかは不明。
+
+
+[ start: ]
+ 現在の検索開始位置からの検索対象文字列
+
+
+[ current: ]
+ マッチング出来ずに残った検索対象文字列
+ 
+ 
+-------------------------------------------- 
+ 
+ おわり
+ 
+ 
+ 
