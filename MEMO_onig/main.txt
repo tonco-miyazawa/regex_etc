@@ -10,6 +10,10 @@ user@ubuntu:~/Documents$ ./a.out
 [バージョン表示]
 printf("%s\n",onig_version());
 
+[よく出てくる定数]
+ONIG_MISMATCH    -1
+ONIG_MAX_ERROR_MESSAGE_LEN    90
+ONIG_ABORT    -3
 
 ======================================================
 [\K の挙動]
