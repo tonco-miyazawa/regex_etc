@@ -1,0 +1,134 @@
+======================================================
+      callout.c の結果と考察  no.005      2022/02/28
+======================================================
+
+## line: 239
+  test(enc, mp, "(?<!a(?{in look-behind-not}X)c)c", "abc");
+
+
+この１行による出力が以下のもの
+
+
+-------------------
+CONTENTS PROGRESS: contents: "in look-behind-not", start: "c", current: "bc"
+user_data: something data
+stack: used_num: 3, used_bytes: 96
+CONTENTS RETRACTION: contents: "in look-behind-not", start: "c", current: "bc"
+user_data: something data
+stack: used_num: 3, used_bytes: 96
+match at 2
+0: (2-3)
+-------------------
+
+
+これは (?<! ) の中に (?{text}) を置いたテスト
+(?<!ac) は現在位置から２文字前までを読みに行く
+
+全体の動作としては
+テキスト "abc" に対して (?<!ac)c を試している
+
+
+
+1.  start: "c"
+
+(?{text}) は検索開始位置が "2" のときに初めて試される
+
+検索開始位置が "0" , "1" のときには (?<!ac) に必要な
+現在位置より前の２文字は存在しない、そのため
+(?<!ac) の "a" がマッチすることはなく、"a" に続く
+(?{text}) が試されることもない
+
+
+
+2.  current: "bc"
+
+検索開始位置 "2" からマッチングを始めたとき、
+(?<!ac) はその位置から前の２文字を読む
+
+このため (?<!ac) の内側をマッチングするときには
+現在位置が2つ後ろに戻る
+
+
+よって start: "c" で始まった検索だが (?<!ac) の
+内側では current : "abc" の状態からスタートする
+
+(?{text}) は "a" がマッチした後に試されるので
+current が１つ進み、 current: "bc"  を出力する
+
+
+
+
+
+■ (?<!ac)c を (?<!ab)c に書き換えた
+
+  test(enc, mp, "(?<!a(?{in look-behind-not}X)b)c", "abc");
+
+
+-------------------
+CONTENTS PROGRESS: contents: "in look-behind-not", start: "c", current: "bc"
+user_data: something data
+stack: used_num: 3, used_bytes: 96
+search fail
+-------------------
+
+
+(?<!ab) の内側の "ab" はマッチに成功する
+このため後退することなく (?<!ab) のマッチングが完了する
+このため  CONTENTS RETRACTION:  は出力されない
+
+
+
+
+■ (?<!ac)c を (?<=ac)c に書き換えた
+
+
+  test(enc, mp, "(?<=a(?{in look-behind-not}X)c)c", "abc");
+
+
+-------------------
+CONTENTS PROGRESS: contents: "in look-behind-not", start: "c", current: "bc"
+user_data: something data
+stack: used_num: 2, used_bytes: 64
+CONTENTS RETRACTION: contents: "in look-behind-not", start: "c", current: "bc"
+user_data: something data
+stack: used_num: 2, used_bytes: 64
+search fail
+-------------------
+
+
+"ab" に対して "ac" を試すので後退が発生している
+
+戻り読みが否定から肯定に変わっただけで
+used_num が "3" から "2" に減っている
+否定形になると stack が１つ増える説は有力か？
+
+
+
+
+■ (?<!ac)c を (?<=ab)c に書き換えた
+
+
+  test(enc, mp, "(?<=a(?{in look-behind-not}X)b)c", "abc");
+
+
+-------------------
+CONTENTS PROGRESS: contents: "in look-behind-not", start: "c", current: "bc"
+user_data: something data
+stack: used_num: 2, used_bytes: 64
+match at 2
+0: (2-3)
+-------------------
+
+"ab" に対して "ab" を試すので後退が発生しない
+
+肯定形なので？  used_num は "2"
+
+
+
+--------------------------------------------
+
+
+ おわり
+
+
+
