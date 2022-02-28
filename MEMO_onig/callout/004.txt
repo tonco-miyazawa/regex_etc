@@ -1,0 +1,113 @@
+======================================================
+      callout.c の結果と考察  no.004      2022/02/28
+======================================================
+
+## line: 238
+  test(enc, mp, "\\A(?!a(?{in prec-read-not}[xxx]X)b)", "ac");
+
+
+この１行による出力が以下のもの
+
+
+-------------------
+CONTENTS PROGRESS: contents: "in prec-read-not", start: "ac", current: "c"
+user_data: something data
+stack: used_num: 3, used_bytes: 96
+CONTENTS RETRACTION: contents: "in prec-read-not", start: "ac", current: "c"
+user_data: something data
+stack: used_num: 3, used_bytes: 96
+match at 0
+0: (0-0)
+-------------------
+
+
+これは (?{text}) を否定先読みの中に置いたテスト
+(?{text}) の後ろに "b" があるため後退が発生する
+
+stack の used_num が "3" になってる以外は通常時と変わらず
+先読みの内側と外側で stack が２つ必要になるのは分かるが
+３つ目が作られる理由は分からない
+
+
+"X" は "方向指定文字" で "前進中および後退中" を指定している
+このオプションを省略すると "前進中のみ" が指定される
+つまり ">" を指定したのと同じになる
+
+<呼び出し>
+https://github.com/kkos/oniguruma/blob/master/doc/RE.ja#L321
+
+
+
+
+■ 否定先読み内の "b" を "c" に書き換えた
+
+  test(enc, mp, "\\A(?!a(?{in prec-read-not}[xxx]X)c)", "ac");
+
+
+-------------------
+CONTENTS PROGRESS: contents: "in prec-read-not", start: "ac", current: "c"
+user_data: something data
+stack: used_num: 3, used_bytes: 96
+search fail
+-------------------
+
+
+否定先読みによって全体マッチは失敗するが
+先読みの内側では後退は発生していない
+
+used_num が "3" になってる他は通常時と変わりなし
+全体マッチの成否は used_num に影響しないように見える
+
+
+
+
+■ 否定先読みを肯定先読みに書き換えた
+
+  test(enc, mp, "\\A(?=a(?{in prec-read-not}[xxx]X)b)", "ac");
+
+
+-------------------
+CONTENTS PROGRESS: contents: "in prec-read-not", start: "ac", current: "c"
+user_data: something data
+stack: used_num: 2, used_bytes: 64
+CONTENTS RETRACTION: contents: "in prec-read-not", start: "ac", current: "c"
+user_data: something data
+stack: used_num: 2, used_bytes: 64
+search fail
+-------------------
+
+
+後ろが "b" なのでこの肯定先読みはマッチしない
+
+used_num が "2" に減った
+否定先読みにはマッチの成否を反転させるための
+stack が１つ余計に必要になるのだろうか？
+
+
+
+
+■ 肯定先読み内の "b" を "c" に書き換えた
+
+  test(enc, mp, "\\A(?=a(?{in prec-read-not}[xxx]X)c)", "ac");
+
+-------------------
+CONTENTS PROGRESS: contents: "in prec-read-not", start: "ac", current: "c"
+user_data: something data
+stack: used_num: 2, used_bytes: 64
+match at 0
+0: (0-0)
+-------------------
+
+
+全体マッチは成功している
+先読みがマッチするので後退は発生していない
+used_num は "2" だが他は通常時と変わらない
+
+
+
+--------------------------------------------
+
+ おわり
+
+
+
