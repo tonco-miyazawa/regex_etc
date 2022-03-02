@@ -1,5 +1,5 @@
 ========================================================
-         callout.c の結果と考察 no.001      2022/02/26-28
+    callout.c の結果と考察 no.001    2022/02/26-2022/03/02
 ========================================================
 ## line: 235
 test(enc, mp, "a+(?{foo bar baz...}X)$", "aaab");
@@ -7,6 +7,7 @@ test(enc, mp, "a+(?{foo bar baz...}X)$", "aaab");
 この１行による出力が以下のもの
 
 
+-----------------------
 CONTENTS PROGRESS: contents: "foo bar baz...", start: "aaab", current: "b"
 user_data: something data
 stack: used_num: 3, used_bytes: 96
@@ -44,62 +45,64 @@ CONTENTS RETRACTION: contents: "foo bar baz...", start: "ab", current: "b"
 user_data: something data
 stack: used_num: 1, used_bytes: 32
 search fail
-
+-----------------------
 
 -----------------------------------------------------
   以下、現時点での解釈 (間違ってる可能性あり)
 -----------------------------------------------------
 
-
-[CONTENTS]
- PROGRESS:   (訳) 前進中 (ここまではマッチが成功している)
- RETRACTION: (訳) 後退中 (後退する直前の状態が出力される)
+1.  この正規表現の縮図
+ "aaab" =~ /a+$/
 
 
+2.  CONTENTS
+ PROGRESS:   (訳) 前進中
+ RETRACTION: (訳) 後退中
 
-[ contents: "foo bar baz..." ]
+ ※ これらについてはまだはっきり分かっておらず検証が必要
+
+
+3.  contents: "foo bar baz..."
  正規表現 (?{text}) のリテラル文字列 "text"
  正規表現の中からコードに渡せる文字列型の引数
- この abc は正規表現としてマッチングに使用される文字列ではない
+ この "text" は正規表現としてマッチングに使用される文字列ではない
  ただの文字列なので (*foo) のように関数が呼び出されることもない
 
 
+4.  user_data: something data
+ user_data は構造体 OnigMatchParam のメンバー
+ OnigMatchParam は引数としてコールバック関数に渡される
+ "something data" は user_data に入れられていた任意の文字列(のポインタ)
+ user_data に入れるポインタは文字列型のポインタである必要はない
 
-[ user_data: something data ]
- user_data は構造体 OnigMatchParam のメンバー。
- OnigMatchParam は引数としてコールバック関数に渡される。
- "something data" は user_data に入れられていた任意の文字列(のポインタ)。
 
-
-
-[ stack: used_num: 3, used_bytes: 96 ]
+5.  stack: used_num: 3, used_bytes: 96
  used_num: その時点で使っているスタックの数
  used_bytes: スタックの数 x 32 = スタックのメモリ消費量
 
   enc = ONIG_ENCODING_UTF-8; を
-  enc = ONIG_ENCODING_ASCII; に書き換えても２つの数字は変わらず。
-  1byte文字かマルチバイト文字かには左右されないようだ。
+  enc = ONIG_ENCODING_ASCII; に書き換えても２つの数字は変わらず
+  １バイト文字かマルチバイト文字かには左右されないようだ
 
-  /a+/ が "aaa" にマッチするとスタックの数は 3 になる。
-  これは "aaa" が3文字だからではなく、3回繰り返すから。
-  /(?:aa)+/ を "aaaa" にマッチさせればスタックの数は 2 になる
-
-  /(a)+/ としてキャプチャを有効にするとスタックの数が激増する場合がある。
-  
-  例、
-  test(enc, mp, "(a)+b(?{foo bar baz...}X)$", "aaab");
-  => stack: used_num: 9, used_bytes: 288
-
-  これが何故 9 になるのかは不明。
+  /a+/ が "aaa" にマッチするとスタックの数は "3" になる
+  これは "aaa" が３文字だからではなく、３回繰り返すから
+  /(?:aa)+/ を "aaaa" にマッチさせればスタックの数は "2" になる
 
 
-[ start: ]
- 現在の検索開始位置からの検索対象文字列
+  /(a)+/ としてキャプチャを有効にするとスタックの数が激増する場合がある
+   例、
+    test(enc, mp, "(a)+b(?{foo bar baz...}X)$", "aaab");
+    結果： stack: used_num: 9, used_bytes: 288
+  これが何故 "9" になるのかは不明
 
 
-[ current: ]
+6.  start:
+ 現在の検索開始位置からの検索対象文字列  ※ 位置ではない
+
+
+7.  current:
  (?{text})  がマッチした時点での消費されていない残りの検索対象文字列
- 
+ ※ 位置ではない
  
 -------------------------------------------- 
  
