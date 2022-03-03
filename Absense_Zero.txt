@@ -17,10 +17,11 @@
 
 ■ oniguruma 6.9.7
 
-/sample/simple.c  の 17,18行目を書き換えて実験
+simple.c  の 17,18行目を書き換えて実験
+https://github.com/kkos/oniguruma/blob/master/sample/simple.c
 
-検索表現： 1(?~\\b):
-対象テキスト： 1:
+検索表現： "1(?~\\b):"
+対象テキスト： "1:"
 
 結果=>  1:  にマッチした
 
@@ -28,13 +29,17 @@
 
 ■ Onigmo 6.2.0
 
-これは Onigmo に存在する非包含オペレータのバグの影響を受けない
-中に入っている  "\b"  はマッチする文字数が "0" で不変だからだ
+simple.c  の 16,17行目を書き換えて実験
+https://github.com/k-takata/Onigmo/blob/master/sample/simple.c
 
-string = "1:"
-puts string.sub( /1(?~\b):/, '<match>')
+検索表現： "1(?~\\b):"
+対象テキスト： "1:"
 
 結果=>  マッチせず
+
+
+※  (?~\b)  は Onigmo に存在する非包含オペレータのバグの影響を受けない
+  "\b"  はマッチする文字数がゼロ幅で不変なため
 
 
 
