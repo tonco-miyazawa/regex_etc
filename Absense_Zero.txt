@@ -63,12 +63,14 @@ perl5版は書き方による仕様であることは明らか
 
 これは perl5版の疑似非包含も持つ特徴だ
 oniguruma の (?~abc) と perl5版の疑似非包含は動作がとても
-似ているので perl版に慣れている人には使いやすいはず
+似ているので perl5版に慣れている人には使いやすいはず
 
 
 ■  Onigmo
 Onigmo の非包含オペレータはゼロ幅マッチ対応！ 拍手～！
-ただし下記のバグを考慮する必要があるので要注意
+
+ただし、中に入れる正規表現によっては下記のバグを考慮する
+必要があるので要注意だ
 
 Onigmo の非包含オペレータのバグを再現する方法
 https://github.com/tonco-miyazawa/regex_etc/blob/master/MEMO_Onigmo/bug_absence.txt
