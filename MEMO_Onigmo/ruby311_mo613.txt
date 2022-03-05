@@ -1,0 +1,42 @@
+===========================================
+
+ ruby3.1.1 に入っている Onigmo のバージョン
+
+                tonco-miyazawa  2022/03/05
+===========================================
+
+
+現時点で最新の安定版 ruby3.1.1 の構成を見ると
+このバージョンにインストールされている Onigmo の
+バージョンは 6.1.3 のようだ
+
+C:\Ruby\include\ruby-3.1.0\ruby\onigmo.h  より
+
+----------------------
+#define ONIGMO_VERSION_MAJOR   6
+#define ONIGMO_VERSION_MINOR   1
+#define ONIGMO_VERSION_TEENY   3
+----------------------
+
+Onigmo 6.2.0 で fix されたバグが再現するかを
+試してみたところ再現した (issue #92)
+
+"ss" in look-behind raises syntax error #92 
+https://github.com/k-takata/Onigmo/issues/92
+
+
+■ 実験コード
+---------
+p 'hoge'.sub(/(?<!ass)/iu, 'bar')
+---------
+
+バグにより以下のエラーが出た
+---------
+invalid pattern in look-behind: /(?<!ass)/i
+---------
+
+-------------------------------------------
+
+おわり
+
+
