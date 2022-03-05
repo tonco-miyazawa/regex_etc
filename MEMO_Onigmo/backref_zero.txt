@@ -1,0 +1,63 @@
+==============================================
+
+           ruby3.1.1 と Onigmo の $&
+
+                tonco-miyazawa  2022/03/05
+==============================================
+
+
+Onigmo の RE.ja には "\0" や "\&" の説明がない
+これらは ruby 側で作られているメタ文字のようだ
+
+後方参照での "0" は Onigmo側では実装されていない
+よって Onigmo単独では "\0" や "\k<0>" は使えない
+
+Onigmo単独では "region->beg[0]" と "region->end[0]"
+を使って検索対象文字列から該当部分を取り出すコード
+を書けば "$&" に相当する文字列を取得出来る
+
+
+Onigmo: RE.ja
+https://github.com/k-takata/Onigmo/blob/master/doc/RE.ja
+
+
+
+
+---------------------------
+Onigmo では "部分式呼び出し" で "0" が
+全体を表す数字として使われている
+
+\g<0> パターン全体の再帰呼び出し
+\g'0' パターン全体の再帰呼び出し
+
+※ これらは後方参照ではない
+---------------------------
+
+
+
+ruby公式に "\&" と "\0" の記述があった
+
+Stringクラス sub
+https://docs.ruby-lang.org/ja/latest/method/String/i/sub.html
+
+ruby3.1.1 でも "\k<0>" と "\k'0'" は使えなかった
+
+Onigmo で ONIG_SYNTAX_PERL オプションが有効だと使える
+"\g{n}" も試してみたがオプションが違う ruby では
+"\g{0}" は使えなかった
+
+
+
+ruby公式に "$&" に関する記述もあった
+
+グローバル変数 -> 識別子と分類
+https://docs.ruby-lang.org/ja/latest/doc/spec=2fvariables.html#global
+
+
+---------------------------
+
+
+おわり
+
+
+
