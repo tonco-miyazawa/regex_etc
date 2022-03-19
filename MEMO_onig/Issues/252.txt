@@ -1,6 +1,28 @@
 ======================================================
-   test_utf8.c で \k<x> のテストの件         2022/03/18
+   test_utf8.c で \k<x> のテストの件    2022/03/18-19
 ======================================================
+
+
+------------------------------------------------
+2022/03/19 追記
+
+
+実際に質問をしたところ kosako氏から以下の回答を頂いた
+
+https://github.com/kkos/oniguruma/issues/252
+=================
+This is inevitable because backreferences to duplicate names are achieved by a different process than the usual alternations(|). Therefore, it is a specification.
+Consider that once one of these matches is made, the other options are cut.
+=================
+
+kosako氏ありがとうございました
+
+------------------------------------------------
+
+
+
+
+2022/03/18  本題
 
 
 # 2022/03/15 に commit された fix
