@@ -1,0 +1,70 @@
+======================================================
+      callout.c の結果と考察  no.006      2022/04/07
+======================================================
+
+## line: 242
+  test(enc, mp, "\\A(*foo)abc", "abc");
+
+
+
+この１行による出力が以下のもの
+
+
+-------------------
+name: foo
+NAME PROGRESS: contents: "(null)", start: "abc", current: "abc"
+user_data: something data
+stack: used_num: 1, used_bytes: 32
+match at 0
+0: (0-3)
+-------------------
+
+
+これは "名前呼び出し" の動作テスト
+
+名前の呼び出し
+https://github.com/kkos/oniguruma/blob/master/doc/RE.ja#L341
+
+
+
+1. (*foo) は \A の次に試される
+
+(*foo) は対象テキストの先頭の位置でのみ実行される
+これにより関数 "foo" が実行される
+
+callout.c: 関数 "foo"
+https://github.com/kkos/oniguruma/blob/master/sample/callout.c#L73
+
+
+
+2. contents: "(null)"
+
+関数 "foo" は 関数 "callout_body" を実行させるが
+"callout_body" は "内容の呼び出し" で使われている
+関数と同じ関数だ
+
+そのため contents の無い "内容の呼び出し" という
+動作になる  =>  (null)
+
+
+
+3. used_num: 1
+
+名前呼び出しを使っても stack の数は増えないようだ
+
+
+
+4. \\A(*foo)abc", "abc"
+
+全体の動作としては  "abc" =~ /\Aabc/  なので (*foo) の位置では検索開始位置が先頭のときに
+前進中に1回呼ばれるのみ。
+
+検索開始位置が進むと "\A" がマッチしなくなり (*foo) に到達出来ない。
+
+
+
+
+ おわり
+
+
+
