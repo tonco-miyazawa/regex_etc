@@ -1,0 +1,93 @@
+﻿======================================================
+      callout.c の結果と考察  no.010      2022/04/12
+======================================================
+
+## line: 246
+  test(enc, mp, "ab(*foo{})(*FAIL)", "abc");
+
+
+
+この１行による出力が以下のもの
+
+
+--------------------------
+name: foo
+NAME PROGRESS: contents: "(null)", start: "abc", current: "c"
+user_data: something data
+stack: used_num: 1, used_bytes: 32
+name: foo
+NAME RETRACTION: contents: "(null)", start: "abc", current: "c"
+user_data: something data
+stack: used_num: 1, used_bytes: 32
+search fail
+--------------------------
+
+
+1. この正規表現の縮図
+
+ "abc" =~ /ab(*foo{})(*FAIL)/
+
+
+
+2.  (*foo{})
+
+ ユーザー定義関数 "foo" に渡す引数を指定する "{}" が付いている。
+以下は callout.c での foo の定義の引用。
+
+## callout.c より引用
+-------------------------------------------------
+static int
+foo(OnigCalloutArgs* args, void* user_data)
+{
+  return callout_body(args, user_data);
+}
+-------------------------------------------------
+
+
+これを見ると OnigCalloutArgs 型のポインタ変数を渡すための "{}" だと思われる。
+
+※ ２つ目の引数 "user_data" は callout.c 内で値が設定されている。
+
+## callout.c より引用
+-----------------------------------------
+user_data = (void* )"something data";
+-----------------------------------------
+
+
+
+3. 自分で書いたコード
+
+ "{}"  の中に適当な文字列 "abc" を入れて実行してみた。
+
+結果:
+-------------------------------------------------
+COMPILE ERROR: -232: invalid callout arg
+-------------------------------------------------
+
+=>  やはり OnigCalloutArgs 型のポインタ変数を渡すもののようだ。
+
+
+
+4.  oniguruma リポジトリ内から "OnigCalloutArgs" を検索
+
+oniguruma : OnigCalloutArgs
+https://github.com/kkos/oniguruma/search?q=OnigCalloutArgs
+
+すると、/doc/CALLOUTS.API.ja  に以下のような項目があった。
+
+＞ (5) OnigCalloutArgsからの値の取得
+
+CALLOUTS.API.ja
+https://github.com/kkos/oniguruma/blob/master/doc/CALLOUTS.API.ja
+
+今のところこれ以上のことは分からない。
+
+
+(*FAIL) については 007.txt を参照。
+https://github.com/tonco-miyazawa/regex_etc/blob/master/MEMO_onig/callout/
+
+
+
+ おわり
+
+

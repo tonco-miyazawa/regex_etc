@@ -1,0 +1,146 @@
+﻿======================================================
+      callout.c の結果と考察  no.008      2022/04/12
+======================================================
+
+## line: 244
+  test(enc, mp, "abc(?:$|(*MISMATCH)|abc$)", "abcabc");
+
+
+
+この１行による出力が以下のもの
+
+
+-------------------
+match at 3
+0: (3-6)
+-------------------
+
+
+1. この正規表現の縮図
+
+ "abcabc" =~ /abc(?:$|(*MISMATCH)|abc$)/
+
+
+
+2. "0: (3-6)"
+
+  マッチしたのが "3" からなので先頭の位置でのマッチは失敗している。
+ これは検索開始位置が先頭のときに (*MISMATCH) がマッチを阻止した
+ ことを意味する。
+
+  検索開始位置が "3" まで進むと選択の中の "$" がマッチ出来るので
+ そこで全体マッチが成功し、検索が終わる。
+
+
+
+3. "(*MISMATCH)"
+
+  (*MISMATCH) は oniguruma にあらかじめ組み込まれている関数。
+なので (*foo) とは違い、callout.c では定義されていない。
+
+組み込み関数は大文字で定義されているので自分で定義する関数には
+小文字を使ったほうが良い。
+
+
+組み込み関数の説明は以下のdocを参照。
+
+CALLOUTS.BUILTIN.ja
+https://github.com/kkos/oniguruma/blob/master/doc/CALLOUTS.BUILTIN.ja
+
+------- 引用 -----------
+
+ * MISMATCH    (前進)
+
+ (*MISMATCH)
+
+ 照合を中止する
+ 検索は継続する
+
+------------------------
+
+
+
+4. 自分で書いたテスト
+
+
+------------------------------------------
+test(enc, mp, "12345(*MISMATCH)|123", "12345");
+------------------------------------------
+結果： search fail
+
+
+------------------------------------------
+test(enc, mp, "12345(*MISMATCH)|234", "12345");
+------------------------------------------
+結果:
+-----------
+match at 1
+0: (1-4)
+-----------
+
+
+このテスト結果を見てみると引用した説明にある "照合" とは
+検索開始位置ごとのマッチングを意味しているようだ。
+
+(*MISMATCH) に到達したら現在の検索開始位置からの検索が
+強制的に失敗となり、次の検索開始位置へ処理が進む。
+
+
+
+
+5. perl5の特殊なバックトラック制御記号 (*VERB:ARG) との関係
+
+
+perldoc: 特殊なバックトラック制御記号
+https://perldoc.jp/docs/perl/5.26.1/perlre.pod#Special32Backtracking32Control32Verbs
+
+
+oniguruma の "(*MISMATCH)" は perl5 で "(*PRUNE)(*FAIL)" と書くのと
+同じ動作になる。
+
+perldoc の (*PRUNE) のサンプルコードを oniguruma で再現してみた。
+
+
+## perldoc のサンプル
+-----------------------
+'aaab' =~ /a+b?(*PRUNE)(?{print "$&\n"; $count++})(*FAIL)/;
+-----------------------
+
+
+## oniguruma で同じ動作になるコード
+-----------------------
+test(enc, mp, "a+b?(*foo)(*MISMATCH)", "aaab");
+-----------------------
+
+このコードでは "print" の代わりに (*foo) を使った。
+
+
+
+### 結果 ###
+-----------------------
+name: foo
+NAME PROGRESS: contents: "(null)", start: "aaab", current: ""
+user_data: something data
+stack: used_num: 4, used_bytes: 128
+name: foo
+NAME PROGRESS: contents: "(null)", start: "aab", current: ""
+user_data: something data
+stack: used_num: 3, used_bytes: 96
+name: foo
+NAME PROGRESS: contents: "(null)", start: "ab", current: ""
+user_data: something data
+stack: used_num: 2, used_bytes: 64
+search fail
+-----------------------
+
+=> "start" と "current" を見ると perldoc と同じ結果になっていることが分かる。
+  current: ""  は (*foo) がマッチした位置が検索対象文字列の末端であることを示す。
+
+  また、結果の最後は "search fail" なので全体マッチは失敗で終わっている。
+  これは (*MISMATCH) が (*FAIL) と同じ動作を含んでいることを示している。
+
+
+
+ おわり
+
+
