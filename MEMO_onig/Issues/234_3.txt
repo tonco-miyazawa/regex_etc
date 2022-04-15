@@ -1,0 +1,142 @@
+﻿====================================================
+      googleの検索オプション "allinanchor" について      2022/04/15
+====================================================
+
+google の検索結果ページの右上にある歯車アイコンの「設定」から
+「検索オプション」をクリックすると検索オプションのページが開かれる。
+
+そのページの設定の中に「検索対象の範囲」という項目があるので
+候補の中から「そのページへのリンク内」を選択する。
+
+この状態で下にある「詳細検索」を押すと 「allinanchor: keyword」という
+キーワードで検索される。
+
+
+また、この検索オプションのページでは「ファイル形式」も選べるように
+なっていて、pdf ファイルのみ検索することなどが出来る。
+
+
+HIDESUN: ブログ検索を最短にする9つの方法
+https://hidesunblog.com/blog-search/
+
+> 「そのページへのリンク内」とは、あるページへリンクさせている
+>  ページリンクを検索対象にすることです。
+
+
+以上をふまえて以下のgoogle検索テストの結果をご覧下さい。
+
+------------------------------------------------
+
+
+## ファイルタイプ 「pdf」限定で検索
+
+■ allinanchor: oniguruma filetype:pdf
+=> 約 1,770 件 （0.23 秒）
+
+■ allinanchor: "oniguruma" filetype:pdf
+=> 0件
+
+"" で囲うと1件もヒットしない。
+つまり前者はすべて部分一致でのヒット。
+
+
+-------------------------------------------------
+
+## ファイルタイプ 「doc」限定で検索
+
+■ allinanchor: oniguruma filetype:doc
+=> 約 73 件 （0.19 秒） 
+
+■ allinanchor: "oniguruma" filetype:doc
+=> 0件
+
+"" で囲うと1件もヒットしない。
+つまり前者はすべて部分一致でのヒット。
+
+
+-------------------------------------------------
+
+## どらえもんの 「doraemon」で検索してみた
+
+■ allinanchor: doraemon filetype:pdf
+=> 約 2,600 件 （0.54 秒） 
+
+result page3:
+https://www.city.tochigi-sakura.lg.jp/manage/contents/upload/61bb4ab4dbec7.pdf
+お 困 り の 方 へ 騒 音 や 悪 臭 な ど で
+
+result page6:
+https://iyakyuukyoukai.web.fc2.com/sibutaikai/H28sibutaikai/H28sibutaikai2/kaicyouD.pdf:
+市原市野球協会長杯第41回市民野球大会（D級）
+
+# 前者は oniguruma を検索したときにも出てくる pdf 。
+# 両者とも doraemon とは関係が無い pdf 。
+
+
+-------------------------------------------------
+
+## Onigmo の非包含オペレータのバグを調べるために検索して気づいたこと。
+
+■ site:www.a-k-r.org 鬼車
+約 57 件 （0.26 秒）
+
+■ site:www.a-k-r.org oniguruma
+3 件 （0.53 秒） 
+
+前者は完全一致が無いが、ヒット件数が多い。
+ヒットしているのは鬼車が含まれないページのみ。pdf が多い。
+
+後者は2件が完全一致しているが、ヒット件数は3件しかない。
+
+=> 完全一致が無いほうが無関係なページがたくさんヒットする。
+
+-------------------------------------------------
+
+
+
+(結論)
+
+「allinanchor: keyword」 の検索の精度は極めて低い。この検索結果が通常時の検索結果にも
+入り込み、しかも表示順位が上のほうになってしまう。
+
+doraemon の検索結果でも起こる現象なので oniguruma だけの問題ではない。
+
+oniguruma で検索したときにこの現象の影響を強く受けてしまう原因は
+oniguruma に完全一致するページが見つからないために部分マッチするページが
+検索結果にたくさん入ってしまい、それが通常検索の結果にも反映されてしまうため。
+
+部分マッチしたページは keyword との関連性が低いものが多い。
+
+
+=> 現時点では oniguruma をピンポイントで狙った攻撃の可能性は低いと思われる。
+
+
+
+-------------------------------------------------
+
+
+■ Today, I sent to the Google team:
+ - - - - - - - - - - - - - - - - - - - - - - - - - 
+The searched word is  "oniguruma".
+But the result is full of irrelevant pages.
+( It is irrelevant even in Japanese. )
+
+This is because it reflects the result of "allinanchor: oniguruma".
+
+Please exclude "allinanchor: oniguruma" from the search results.
+
+"allinanchor: oniguruma" has too high a priority.
+
+Thank you for reading.
+ - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+特に何か無ければ返信の必要はありません。
+SSのご依頼は遠慮なくお願いします。
+ぴよ将棋Lv30に300連敗中orz
+
+
+
+END.
+
+
