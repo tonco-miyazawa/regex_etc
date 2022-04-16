@@ -1,0 +1,134 @@
+﻿======================================================
+      callout.c の結果と考察  no.012      2022/04/16
+======================================================
+
+## line: 248
+  test(enc, mp, "ab(*bar{372,I am a bar's argument,あ})c(*FAIL)", "abc");
+
+
+この１行による出力が以下のもの
+
+
+--------------------------
+bar called.
+arg[0]: 372
+arg[1]: 'I am a bar's argument'
+arg[2]: 0x003042
+search fail
+--------------------------
+
+
+1. この正規表現の縮図
+
+ "abc" =~ /abc(?!)/
+
+
+
+
+2.  (*bar{372,I am a bar's argument,あ})
+
+ これは callout.c 内のユーザー定義の関数 "bar" を引数付きで呼び出す "名前の呼び出し"。
+{} 内の文字列が  ","  で区切られ、配列として関数barに渡される。
+
+ /doc/RE.ja : "名前の呼び出し"
+https://github.com/kkos/oniguruma/blob/master/doc/RE.ja#L349
+
+
+
+
+3.  bar 関数の処理
+
+ callout.c : bar 関数
+https://github.com/kkos/oniguruma/blob/master/sample/callout.c#L79
+
+#  args に入っていた引数の個数を int型の n に代入。
+---------------------------
+  n = onig_get_args_num_by_callout_args(args)
+---------------------------
+
+# args の各要素のタイプと値を type と val に代入。
+---------------------------
+r = onig_get_arg_by_callout_args(args, i, &type, &val)
+---------------------------
+
+
+# タイプごとに処理を分けて val の値を print 。
+---------------------------
+ switch (type) {
+case ONIG_TYPE_LONG:  ...省略...
+case ONIG_TYPE_CHAR:   ...省略...
+case ONIG_TYPE_STRING:  ...省略...
+}
+
+
+# タイプによって val の中で値が入るところが異なる。
+ONIG_TYPE_LONG  =>  val.l
+ONIG_TYPE_CHAR  =>  val.c
+ONIG_TYPE_STRING  =>  val.s
+
+
+
+4.  {} 内の型
+
+  {} 内の型は順番に予め指定されている。
+
+# callout.c 206行目より
+-------------------------
+  arg_types[0] = ONIG_TYPE_LONG;
+  arg_types[1] = ONIG_TYPE_STRING;
+  arg_types[2] = ONIG_TYPE_CHAR;
+-------------------------
+
+この型と異なる型の引数を渡してみたところ以下のエラーが出た。
+-------------------------
+COMPILE ERROR: -232: invalid callout arg
+-------------------------
+
+
+
+5.  ONIG_CALLOUT_IN_PROGRESS
+
+関数 bar による出力が1回のみなのは "前進中" のみ動作するようにコード側で指定されているから。
+
+216行目の "ONIG_CALLOUT_IN_PROGRESS" を "ONIG_CALLOUT_IN_BOTH"  に
+書き換えれば関数 foo と同じく後退中にも動作するようになる。
+
+
+#  書き換えてテストした結果
+----------------------
+bar called.
+arg[0]: 372
+arg[1]: 'I am a bar's argument'
+arg[2]: 0x003042
+bar called.
+arg[0]: 372
+arg[1]: 'I am a bar's argument'
+arg[2]: 0x003042
+search fail
+----------------------
+
+=>  関数 bar が2回呼ばれている。
+
+
+
+6.  {} の中に後方参照を入れて関数barに渡せるかテスト
+
+{} 内の2番目の要素が文字列タイプなので  "\\k<1>"  に書き換えてみた。
+
+----------------------
+test(enc, mp, "(ab)(*bar{372,\\k<1>,あ})c(*FAIL)", "abc");
+----------------------
+
+arg[1] の結果： '\k<1>'
+
+=>  後方参照を使ってキャプチャした文字列を渡すことは出来ない。
+
+
+
+(*FAIL) については 007.txt を参照。
+https://github.com/tonco-miyazawa/regex_etc/blob/master/MEMO_onig/callout/
+
+ おわり
+
+
+
