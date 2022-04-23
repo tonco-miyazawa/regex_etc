@@ -1,1 +1,36 @@
+==========================================================
+              perl 5  に関するメモ
+                                         2022/04/23
+==========================================================
+
+perldoc.jp  の説明文の誤植。 以下の全てのページで確認。
+
+https://perldoc.jp/docs/perl/5.18.1/perlrecharclass.pod
+https://perldoc.jp/docs/perl/5.16.1/perlrecharclass.pod
+https://perldoc.jp/docs/perl/5.14.1/perlrecharclass.pod
+https://perldoc.jp/docs/perl/5.12.1/perlrecharclass.pod
+https://perldoc.jp/docs/perl/5.10.1/perlrecharclass.pod
+
+
+## 引用
+--------------------------
+ "[]"  =~ /[[]]/      #  マッチング; パターンは ] だけを含んでいる
+                      #  文字クラスと、それに引き続く
+                      #  ] からなる。
+--------------------------
+
+誤: パターンは ] だけを含んでいる
+正: パターンは [ だけを含んでいる
+
+
+原文だと思われる CPAN (英語) の説明文は正しい記述となっている。
+https://metacpan.org/pod/perlrecharclass
+
+
+perldoc.jp の中の人と連絡を取れる方はお知らせして頂けると助かります。
+自分は連絡に必要なアカウントがありません。
+
+
+おわり
+
 
