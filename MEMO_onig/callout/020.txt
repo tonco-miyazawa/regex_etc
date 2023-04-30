@@ -1,0 +1,175 @@
+﻿======================================================
+      callout.c の結果と考察  no.020     2023/04/30
+======================================================
+
+## line: 263
+  test(enc, mp, "(?:(*MON{X})(*FAIL)|.{,3}(*MON[FOO])k)", "abcdefghijk");
+
+
+
+この１行による出力が以下のもの
+
+--------------------------
+ONIG-MONITOR: #1   => at: 0 [0 - 11] len: 11
+ONIG-MONITOR: #1   <= at: 0 [0 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 3 [0 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 2 [0 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 1 [0 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 0 [0 - 11] len: 11
+ONIG-MONITOR: #1   => at: 1 [1 - 11] len: 11
+ONIG-MONITOR: #1   <= at: 1 [1 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 4 [1 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 3 [1 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 2 [1 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 1 [1 - 11] len: 11
+ONIG-MONITOR: #1   => at: 2 [2 - 11] len: 11
+ONIG-MONITOR: #1   <= at: 2 [2 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 5 [2 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 4 [2 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 3 [2 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 2 [2 - 11] len: 11
+ONIG-MONITOR: #1   => at: 3 [3 - 11] len: 11
+ONIG-MONITOR: #1   <= at: 3 [3 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 6 [3 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 5 [3 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 4 [3 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 3 [3 - 11] len: 11
+ONIG-MONITOR: #1   => at: 4 [4 - 11] len: 11
+ONIG-MONITOR: #1   <= at: 4 [4 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 7 [4 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 6 [4 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 5 [4 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 4 [4 - 11] len: 11
+ONIG-MONITOR: #1   => at: 5 [5 - 11] len: 11
+ONIG-MONITOR: #1   <= at: 5 [5 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 8 [5 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 7 [5 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 6 [5 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 5 [5 - 11] len: 11
+ONIG-MONITOR: #1   => at: 6 [6 - 11] len: 11
+ONIG-MONITOR: #1   <= at: 6 [6 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 9 [6 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 8 [6 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 7 [6 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 6 [6 - 11] len: 11
+ONIG-MONITOR: #1   => at: 7 [7 - 11] len: 11
+ONIG-MONITOR: #1   <= at: 7 [7 - 11] len: 11
+ONIG-MONITOR: FOO  => at: 10 [7 - 11] len: 11
+match at 7
+0: (7-11)
+--------------------------
+
+
+1.  この正規表現の縮図
+
+ "abcdefghijk" =~ /(?:(*FAIL)|.{,3}k)/
+
+
+
+2.  (*MON)
+
+   この callout は /doc/CALLOUTS.BUILTIN.ja  には説明が無いので非公式の callout のようだ。
+  恐らくデバック用の callout だと思われる。
+
+
+
+3.  「#1」
+
+   callout に割り振られる番号。 1から始まり、 callout の出現順に数が増えていく。
+  これは他の callout と共通の通し番号で、 (*FAIL) 等にも割り振られる。
+  今回の正規表現の場合、 (*FAIL) には  "2" が割り振られている。
+
+  コード上からこの番号を取得する API は /doc/CALLOUTS.BUILTIN.ja  に説明がある。
+
+   -------------------------------------------------------------------
+   # int onig_get_callout_num_by_callout_args(OnigCalloutArgs* args)
+   
+     この呼び出しの呼び出し番号を返す。
+     "呼び出し番号"とは、正規表現パターンの中の呼び出しに対する識別子である。
+   --------------------------------------------------------------------
+
+
+
+4.  「FOO」
+
+    (*MON[FOO])  の  「FOO」  はタグ名。
+   callout の通し番号は  (*MON[FOO])  にも割り当てられ、 "3" が付く。
+
+   なお、このタグ名は重複は許されず、 同じタグ名を付けると以下のエラーが出る。
+
+    -------------------------------------------------
+    COMPILE ERROR: -219: multiplex defined name <FOO>
+    -------------------------------------------------
+
+   タグ名が重複不可なのは (*MAX) や 内容呼び出しでも同じでエラーとなる。
+
+
+
+5.  「=>」  と  「<=」
+
+    (*MON) に処理が来たときの方向。 「FOO」 は方向指定子が付いていないので
+   デフォルトの動作である "前進中のみ" 呼ばれている。
+
+
+
+6.  「at:」
+
+   (*MON) に処理が来たときの現在位置。 (*MON) の位置。
+
+
+
+7.  [0 - 11]
+
+    最初の数字  =   対象文字列の現在の照合範囲の始点
+
+    2番目の数字 =  対象文字列の現在の照合範囲の終端。 この値は以下のAPIを使って取得されている。
+
+
+    /doc/CALLOUTS.API.ja
+    https://github.com/kkos/oniguruma/blob/eaf351cf2907903255eb1648895eb9110f5dd62a/doc/CALLOUTS.API.ja#L211
+    -------------------------------------------------------------------
+    # const OnigUChar* onig_get_right_range_by_callout_args(OnigCalloutArgs* args)
+
+       対象文字列の現在の照合範囲アドレスを返す。
+    -------------------------------------------------------------------
+
+    oniguruma の該当コード
+
+    /src/regexec.c
+    https://github.com/kkos/oniguruma/blob/abd3080cb443454937d3ecaff9597159da51ca33/src/regexec.c#L6664
+
+
+
+8.  「len: 11」
+
+   対象文字列のバイト数
+
+
+
+9.  (*MON{X}) の動作
+
+   方向指定子に "X" が指定されているので前進中、後退中ともに callout 関数が呼ばれる。
+
+   出力結果を見ると  「#1   =>」  の次の行は必ず 「#1   <= 」  となっている。
+   これは、 前進中の callout 関数が呼ばれた後に (*FAIL) によってバックトラックが発生し、
+   後退しながら再び (*MON{X}) を通り、 後退中の callout 関数も呼ばれるため。
+
+
+
+10.  (*MON[FOO]) の動作
+
+   出力結果を見ると4行連続で (*MON[FOO]) の callout が出力されている。
+
+   これは後ろにある "k" が見つからずにバックトラックが発生し、  ".{,3}" の繰り返しの回数が
+   3 -> 2 -> 1 -> 0  と減らされるごとに  (*MON[FOO])  を合計4回前進中に通るため。
+
+   照合開始位置が "7" まで進むと後ろに "k" が見つかるためバックトラックは発生せず、
+   callout は1回出力されて終わっている。
+
+
+
+
+おわり
+
+
+
