@@ -3,6 +3,9 @@
 oniguruma  :  regular expression library  ( Owner: K.Kosako )<br>
 <a href="https://github.com/kkos/oniguruma">https://github.com/kkos/oniguruma</a>
 
+✨ Oniguruma to ES : Convert patterns from Oniguruma to native JavaScript RegExp 🌟<br>
+https://github.com/slevithan/oniguruma-to-es<br>
+
 Onigmo  :  regular expressions library forked from Oniguruma  ( Owner: K.Takata )<br>
 <a href="https://github.com/k-takata/Onigmo">https://github.com/k-takata/Onigmo</a>
 
